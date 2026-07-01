@@ -1,0 +1,158 @@
+:root {
+  color-scheme: light dark;
+
+  /* Primitive: neutrals */
+  --white: #fafaf8;
+  --gray-50: #f5f5f3;
+  --gray-100: #ededeb;
+  --gray-200: #d9d9d7;
+  --gray-300: #c0c0be;
+  --gray-400: #9c9c9a;
+  --gray-500: #6e6e6c;
+  --gray-600: #555553;
+  --gray-800: #2c2c2a;
+  --gray-900: #1c1c1a;
+  --gray-950: #141412;
+
+  /* Primitive: green (sage-emerald range) */
+  --green-50: #f0f5f2;
+  --green-100: #dce8e0;
+  --green-200: #b8d4c0;
+  --green-400: #7daa8e;
+  --green-500: #5a8f6e;
+  --green-600: #3d7356;
+  --green-700: #315e46;
+  --green-800: #264a37;
+  --green-900: #1a3328;
+
+  /* Semantic: colors */
+  --color-bg: light-dark(var(--white), var(--gray-950));
+  --color-bg-elevated: light-dark(#fff, #1a1a18);
+  --color-text: light-dark(var(--gray-900), var(--gray-100));
+  --color-text-secondary: light-dark(var(--gray-500), var(--gray-400));
+  --color-text-tertiary: light-dark(var(--gray-400), var(--gray-600));
+  --color-border: light-dark(var(--gray-200), var(--gray-800));
+  --color-border-subtle: light-dark(var(--gray-100), #222220);
+  --color-accent: light-dark(var(--green-600), var(--green-400));
+  --color-accent-hover: light-dark(var(--green-700), var(--green-500));
+  --color-accent-subtle: light-dark(var(--green-50), var(--green-900));
+  --color-accent-muted: light-dark(var(--green-100), var(--green-800));
+  --color-surface: light-dark(var(--gray-50), var(--gray-900));
+
+  /* Semantic: spacing (8px base scale) */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+  --space-24: 6rem;    /* 96px */
+
+  /* Semantic: typography */
+  --font-sans: 'Lato', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+  --text-xs: clamp(0.75rem, 0.7rem + 0.15vw, 0.8125rem);
+  --text-sm: clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem);
+  --text-base: clamp(1rem, 0.95rem + 0.2vw, 1.0625rem);
+  --text-lg: clamp(1.125rem, 1rem + 0.4vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --text-2xl: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  --text-3xl: clamp(2rem, 1.5rem + 1.8vw, 2.75rem);
+
+  /* Semantic: layout */
+  --content-width: 42rem;
+  --content-padding: var(--space-6);
+
+  /* Semantic: misc */
+  --radius: 6px;
+  --transition: 0.2s ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.7;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+}
+
+h1, h2, h3 {
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+h1 {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+}
+
+h2 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+}
+
+h3 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+p {
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+p + p {
+  margin-top: var(--space-4);
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--color-surface);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background: var(--color-border);
+  margin: var(--space-12) 0;
+}
+
+::selection {
+  background: var(--color-accent-muted);
+  color: var(--color-text);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
