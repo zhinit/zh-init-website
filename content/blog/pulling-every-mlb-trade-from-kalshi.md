@@ -12,7 +12,7 @@ Anyone who has spent significant time doing data analysis or predictive modeling
 
 This article describes my process for pulling data from the Kalshi and MLB Stats APIs for the purposes of this analysis, and general advice/methodology for anyone looking to do similar data pulls for prediction markets analysis.
 
-A write up for the subsequent analysis can be found [here](/blog/kalshi-mlb-game-winner-calibration) and the project code is on [GitHub](https://github.com/zhinit/prediction-market-analysis).
+A write up for the subsequent analysis can be found [here](/blog/mlb_game_winners_analysis) and the project code is on [GitHub](https://github.com/zhinit/prediction-market-analysis).
 
 ## What I'm pulling and why
 

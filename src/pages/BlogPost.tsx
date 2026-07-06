@@ -26,7 +26,32 @@ export function BlogPost() {
         <h1 className={styles.title}>{post.title}</h1>
       </header>
       <div className={styles.content}>
-        <Markdown remarkPlugins={[remarkGfm]}>{post.body}</Markdown>
+        <Markdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            a: ({ href, children, ...props }) => {
+              const isExternal =
+                href && (href.startsWith('http://') || href.startsWith('https://'))
+              if (isExternal) {
+                return (
+                  <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
+                    {children}
+                  </a>
+                )
+              }
+              if (href?.startsWith('/')) {
+                return <Link to={href}>{children}</Link>
+              }
+              return (
+                <a href={href} {...props}>
+                  {children}
+                </a>
+              )
+            },
+          }}
+        >
+          {post.body}
+        </Markdown>
       </div>
       <footer className={styles.footer}>
         <Link to="/blog">&larr; All posts</Link>
