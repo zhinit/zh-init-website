@@ -1,64 +1,87 @@
 ---
-title: Pulling every MLB trade from Kalshi (and every game from MLB)
-date: 2026-07-05
-description: Building an idempotent pipeline that lands 25 million Kalshi trades and every MLB game into DuckDB — validation at the boundary, exponential backoff, rerun-anytime incremental fetches, and matching two data sources that don't share a key.
+title: Pulling every MLB Game Winner trade from Kalshi 
+date: 2026-07-06
+description: Prediction markets data pipeline best practices. How I pulled 25.7 million prediction market trades from Kalshi and matched them to MLB game results to check if the prices accurately represent game winning probabilities.
 ---
 
-I wanted a local database I could run analysis queries against without hitting an API every time.
-For the MLB calibration analysis that means two sources:
+I wanted to search for mispricings on prediction markets to see if there are any profitable opportunities. To do this you must analyze available data and to analyze available data you must pull in and clean the available data. 
 
-- Kalshi: every trade ever made on their MLB game winner markets
-- MLB Stats API: the schedule, play-by-play, win probability, and weather for every game
+Anyone who has spent significant time doing data analysis or predictive modeling has heard "garbage in, garbage out" and understands the importance of pulling and cleaning your data properly.
 
-Everything lands in a single DuckDB file, `db/pma.db`.
-About 25 million trades across 7,000+ markets, plus every MLB game since Kalshi's markets started trading.
+*For those who have not heard "garbage in, garbage out" before, it means that if you put garbage into your analysis/model, it doesn't matter how good your model/analysis are, you will get garbage output.*
 
-## Three layers
+This article describes my process for pulling data from the Kalshi and MLB Stats APIs for the purposes of this analysis, and general advice/methodology for anyone looking to do similar data pulls for prediction markets analysis.
 
-The scripts in `db/scripts/` are organized pull -> build -> prepare.
+A write up for the subsequent analysis can be found [here](/blog/kalshi-mlb-game-winner-calibration) and the project code is on [GitHub](https://github.com/zhinit/prediction-market-analysis).
 
-1. **pull** - `pull_kalshi_mlb.py` and `pull_mlb_stats.py` mirror the two APIs. Faithful copies, no opinions.
-2. **build** - `build_kalshi_mlb_map.py` joins the mirrors, matching each Kalshi event to an MLB gamePk.
-3. **prepare** - `prepare_mlb_calibration.py` builds the exact tables one analysis reads.
+## What I'm pulling and why
 
-`refresh.py` runs the pulls and the build in order. The prepare layer runs manually, on purpose (more on that at the end).
+Kalshi lists a "Game Winner" market for every MLB game. Each game gets two binary contracts, one per team. You buy YES on the team you think will win, and the contract settles at \$1 or \$0 after the game ends. If a YES contract is trading at 45 cents, the market is saying that team has a 45% chance of winning.
 
-## The stack
+I want to know whether those prices are any good i.e. is a team priced at 45 cents actually winning 45% of the time? And if not, is the gap big enough to trade profitably after fees?
 
-Both pull scripts are the same pipeline with five layers:
+To answer that I need two things
+- Trades on every Game Winner market (from Kalshi)
+- The actual game outcomes (from MLB)
 
-```
-httpx (fetch) -> tenacity (retry) -> pydantic (validate) -> polars (transform) -> duckdb (store)
-```
+The Kalshi data tells me what the expected probability determined by the free world. The MLB data tells me the actual empirical probability. Match them up and you can check across 3,500+ games.
 
-- **httpx** makes async HTTP requests
-- **tenacity** wraps the fetch with retry logic
-- **pydantic** validates every response before anything else touches it
-- **polars** turns the validated objects into DataFrames
-- **duckdb** stores everything locally
+The final dataset lives in a DuckDB database. 25.7 million trades, 3,507 games with full play-by-play. 
 
-## Validate at the boundary
+*Note that "empirical" is just a fancy word to say that the probability came from observed data.*
 
-Every response from an API goes through a pydantic model:
+## The APIs
 
-```python
-class Trade(BaseModel):
-    trade_id: str
-    ticker: str
-    yes_price_dollars: str
-    created_time: str
-    ...
-```
+### Kalshi
 
-An API response is input you don't control.
-If Kalshi renames a field or changes a type, I want the script to fail loudly at the fetch, with an error naming the exact field, instead of writing malformed rows and finding out weeks later in some analysis query.
-Validation happens once, at the boundary. Everything downstream can trust the shape.
+Kalshi's REST API is public and well-documented. The base URL is `https://external-api.kalshi.com/trade-api/v2` and everything comes back as JSON. 
 
-## Exponential backoff
+The data model has three levels
+- series: groups related markets
+    - eg: Game Winner, Spread, Home Runs, etc
+    - all MLB Game Winner markets share the series ticker `KXMLBGAME`
+- event: one game (two teams, two contracts)
+- market: is one side of that event
+    - eg: YES on the Red Sox, YES on the Yankees
+    - Trades happen on markets.
 
-Thousands of requests means transient failures. A timeout here, a rate limit there, the occasional 500.
-Retrying immediately makes things worse. If the server is struggling you're just adding load.
-So retries wait longer each time, with jitter so failed requests don't all retry in lockstep.
+Kalshi splits its trade data across two endpoints. Trades older than a cutoff date live at `/historical/trades` and newer trades live at `/markets/trades`. The cutoff date is available at `/historical/cutoff` and moves forward over time.
+
+This means a single market's trades can span both endpoints. The pull script hits both, deduplicates by trade ID, and moves on.
+
+Small quirk: some events are missing from the events endpoint but are still referenced by markets. The script detects those and fetches them individually so no market ends up without its event metadata.
+
+### MLB Stats
+
+The MLB Stats API is free, public, unauthenticated, and completely undocumented by MLB. No API key, no rate limit headers, no official docs. Everything known about it comes from community reverse-engineering and a GitHub repo by pseudo-r.
+
+The base URL is `https://statsapi.mlb.com/api/v1`. It powers MLB.com and the official app, so the data is authoritative.
+
+Our pull grabs the following:
+
+1. **Schedule**: every game from April 16, 2025 onward (the first day Kalshi listed MLB markets), filtered to regular season and postseason game types. This gives you teams, scores, venue, day/night, and the winner.
+2. **Play-by-play**: every at-bat, with inning, half-inning, timestamps, and running score. This is what lets us look at prices entering each inning, not just pre-game.
+3. **Weather**: condition, temperature, wind speed. Pulled from the live game feed.
+
+The schedule is fetched in month-sized chunks because the API chokes on ranges longer than about 30 days. Games are deduplicated by `game_pk` since a rescheduled game can appear on two calendar dates.
+
+*Note game_pk is game primary key*
+
+## Making it reliable
+
+When you're pulling 25 million trades across thousands of markets, the pull will take several hours. Things will go wrong i.e. servers will hiccup, connections will drop, and rate limits will kick in.
+
+### Pagination
+
+A single MLB Game Winner market can have thousands of trades. Sending all of them in one HTTP response would be slow and fragile. So like most APIs, Kalshi's API paginates. You request a page, get back a chunk of results and a cursor string, pass the cursor to get the next page, and repeat until the cursor comes back null.
+
+Kalshi uses cursor-based pagination specifically, as opposed to offset-based (page 1, page 2, page 3). Cursor-based is better for large, changing datasets because it doesn't break when rows are inserted or deleted between requests. But it means you can't parallelize the fetch for a single resource. You have to walk the pages sequentially. For 25 million trades across thousands of markets, that takes several hours. Thus, when you kick off the script, you will want to go take a walk in the park or work on something else.
+
+### Retries with exponential backoff
+
+When you're making thousands of sequential API calls, some will fail. The server might be momentarily overloaded, you might hit a rate limit, or the connection might drop. You don't want the entire pull to die because of one pesky request.
+
+Both scripts use tenacity to retry failed requests. Every HTTP call goes through a single `fetch` function decorated with the retry logic:
 
 ```python
 @retry(
@@ -67,153 +90,168 @@ So retries wait longer each time, with jitter so failed requests don't all retry
     retry=retry_if_exception(is_retryable),
     reraise=True,
 )
+async def fetch(client, path, params):
+    r = await client.get(path, params=params)
+    r.raise_for_status()
+    return r.content
 ```
 
-One lesson here: only retry errors that can actually succeed on retry.
-The first version retried every HTTP error, so a 404 burned five attempts over several minutes before failing.
-A 404 will be a 404 no matter how long you wait.
-Now the scripts retry timeouts, 429s, and 5xx, and fail immediately on everything else.
+Not every error is worth retrying. A 404 means the resource doesn't exist and asking again won't change that. A 400 means you sent a bad request. But a 429 (rate limited), a 500+ (server error), or a network-level failure (DNS, timeout, connection reset) are all transient. Those get retried. Everything else fails immediately.
 
-Kalshi's rate limiting plays nice with this: a 429 costs nothing beyond the rejection, so backoff-and-retry settles at whatever pace the server allows.
+The backoff is exponential and randomized. The first retry waits roughly a second, then exponentially longer, up to a 60 second cap. The randomization prevents a thundering herd, where many requests fail at the same time, all wait the same duration, then all retry simultaneously and fail again. After five total attempts, if it's still failing, the original exception is raised so the calling code can handle it.
 
-## The historical/live split
+### Concurrency
 
-Kalshi partitions its data into two tiers. The live API serves a rolling window of recent data, older data moves to dedicated `/historical/...` endpoints, and `GET /historical/cutoff` tells you exactly where the boundary sits.
+The MLB script needs to fetch data for thousands of games. It could send all those requests at once, but that would likely get you blocked. A semaphore limits how many requests can be in flight at the same time. Here it's set to five. Five games fetch simultaneously, the rest wait their turn. This is a bit conservative, but the MLB doesn't publish rate limits and hammering an undocumented API felt like asking for trouble.
 
-The first version of the script fetched the cutoff, printed it, and then ignored it.
-It looped over all 7,000 markets twice, once per endpoint, even though most markets could only possibly have data on one side.
-Using the cutoff properly means partitioning: a market whose trades all predate the cutoff only needs the historical endpoint, a market that opened after it only needs the live one, and only markets straddling the boundary need both.
-That roughly halved the number of requests.
+### Resumability
 
-## Idempotency - rerun anytime, no duplicates, no wasted work
+The full trade pull takes a long time. If it crashes halfway through, you don't want to start over.
 
-The goal is a script you can run weekly, or after a crash, or twice by accident, and it always does the right thing. Two properties.
+The Kalshi script tracks which finalized markets have been fully pulled in a `kalshi_trade_pulls` table. On the next run, those markets are skipped entirely. For markets that aren't fully pulled yet, it looks up the most recent trade timestamp and passes that as `min_ts` to the API, so it only fetches new trades. Everything is upserted into DuckDB as it comes in, so even a partial run saves its progress.
 
-**No duplicates.** Every table has a primary key and every insert is `INSERT OR REPLACE`.
-Refetching a trade the database already has just overwrites the row with itself.
-Overlapping fetches are always safe, and that unlocks everything else.
+*Note min_ts is minimum timestamp. Upsert means insert if the row doesn't exist, update if it does.*
 
-**No wasted work.** Before fetching, the script reads its own previous state out of the database:
+### Idempotency
 
-1. The newest stored trade per market. New trades can only exist after that timestamp, so the request includes `min_ts` and the API only returns what's new. (With a one second overlap in case the boundary is inclusive. The primary key eats the duplicate.)
-2. `kalshi_trade_pulls`, a bookkeeping table of markets whose trade history is complete. A market gets a row only if it was finalized and only after both trade phases of a run finish, so a crash mid-run can never mark a market done. Fully pulled markets get zero requests.
+Resumability handles crashes within a run. Idempotency handles re-running the script on a different day. The MLB season runs from April through October, and I didn't want to wait until the season ended to start analyzing data. I wanted to run the pull scripts periodically to add new games and trades to the database without redoing work that was already done.
 
-The effect on a full database: the first pull touched all 7,000+ markets, a rerun the next day touched 94.
-Cost scales with what happened since the last run, not with the whole season.
+Because everything is upserted by a unique key, running the script twice with the same data doesn't create duplicates. And because the script checks what's already in the database before fetching, it skips markets and games that are already fully pulled and only requests new data for everything else. Run it today, run it tomorrow, run it again next week, run it before you walk your dog, run it whenever you want and it just fills in the gap without doing repeated work.
 
-Crashes fall out for free. If a run dies halfway, nothing is corrupted (inserts are idempotent) and nothing is lost (the next run picks up from what actually landed).
-No checkpoints, no state files. The database is the state.
+### 404 handling
 
-The MLB pull has the same shape, with its own bookkeeping table (`mlb_game_pulls`) plus one wrinkle: some games 404 because MLB publishes the data late.
-Those are recorded and retried on later runs until the game is two weeks old, then permanently skipped.
+Some finalized MLB games return 404. The data might not be published yet, or the game might have been irregular (suspended, shortened). The script records these in a `not_found` column and retries them on future runs for up to 14 days, then permanently skips them.
 
-## Raw data first, types later
+## Making it correct
 
-Everything from the APIs lands in the database exactly as it arrived. Timestamps and prices are stored as TEXT strings.
-That felt wrong at first, but the pattern is: land the raw data faithfully, convert as a separate step.
+### Validating responses with pydantic
 
-The conversion step is a set of SQL views, created alongside the tables:
+APIs return JSON. We love Jason, but JSON is untyped. A field you expect to be a string might come back as null, missing, or a number. If you just dump raw JSON into your database and something is malformed, you might not find out until weeks later when an analysis produces nonsensical results and you have to trace it back to a bad response you fetched a month ago.
 
-```sql
-CREATE OR REPLACE VIEW trades_typed AS
-SELECT
-    trade_id,
-    ticker,
-    CAST(yes_price_dollars AS DECIMAL(18, 6)) AS yes_price_dollars,
-    CAST(created_time AS TIMESTAMP) AS created_time,
-    ...
-FROM trades
+That's why I validated every API response through pydantic models before anything touched the database. Each endpoint has a corresponding model that specifies exactly what fields are expected and what types they should be.
+
+For Kalshi, the models are straightforward because the API returns snake_case keys that match Python conventions directly:
+
+```python
+class Trade(BaseModel):
+    trade_id: str
+    ticker: str
+    count_fp: str
+    yes_price_dollars: str
+    no_price_dollars: str
+    taker_outcome_side: str
+    taker_book_side: str
+    created_time: str
+    is_block_trade: bool
 ```
 
-A view stores no data. It's a saved query, and the casting happens on the fly whenever an analysis reads from it.
-So analyses get real TIMESTAMP and DECIMAL columns, the casts live in exactly one place, and the raw tables stay byte-for-byte what the API sent.
-If a cast ever turns out wrong, I fix the view and every row, past and future, is instantly seen through the corrected lens. Nothing was baked in.
+For MLB, the API returns deeply nested camelCase JSON. Pydantic's `Field(alias=...)` handles the translation:
 
-## The MLB side
+```python
+class ScheduleGame(BaseModel):
+    game_pk: int = Field(alias="gamePk")
+    game_type: str = Field(alias="gameType")
+    game_date: str = Field(alias="gameDate")
+    status: GameStatus
+    teams: ScheduleTeams
+    venue: Venue
+    double_header: str = Field(alias="doubleHeader")
+    day_night: str | None = Field(alias="dayNight")
+```
 
-Kalshi tells you the price. The score, the innings, and the weather come from the MLB Stats API (free, no key).
-`pull_mlb_stats.py` mirrors four things:
+When a response comes in, `model_validate_json` parses the raw bytes directly into these typed objects. If a field is missing, has the wrong type, or the structure doesn't match, pydantic raises a validation error right there and the bad data never makes it to the database.
 
-- **mlb_games** - the schedule from April 16 2025 (the first day of Kalshi MLB data) through 10 days out, so markets already listed for upcoming games can be mapped. Regular season and postseason only. No spring training, no exhibitions, no All-Star game.
-- **mlb_plays** - play-by-play for every finalized game, with wall clock start/end times per at-bat. This is what lets the analysis line trades up against innings.
-- **mlb_win_probability** - MLB's own per-play win probability, a ready-made model to compare market prices against later.
-- **mlb_weather** - condition, temperature, and wind at game time.
+This caught several issues during development. Fields that were documented as always present turned out to be null for certain game types. Scores that should have been integers occasionally came back as strings. Finding these at parse time is much easier than tracing them downstream in an analysis.
 
-The three per-game endpoints are fetched concurrently per game, five games in flight at once.
+### Storing everything as text
 
-Note
-- a rescheduled game appears on two schedule dates with the same gamePk, so games are deduped by gamePk
-- the live feed response is enormous and only the weather is needed, so a `fields` parameter cuts the response down to just that
+The Kalshi API returns prices and quantities as strings ("0.45", "10.00") rather than numbers. The database stores them exactly as they arrive, as text. A database view is used to address this. The database view is essentially a saved query that converts text to numbers on the fly, without modifying the raw data. This handles the conversion whenever you read from it.
 
-## Matching Kalshi markets to MLB games
+It might seem wasteful to cast whenever you read from the raw database but it avoids a class of bugs. If the API changes its precision or format, the raw data is still intact. The casts are explicit and testable. And if a cast fails, you find out in the view, not when you're halfway through an analysis wondering why your numbers are wrong.
 
-The two mirrors don't share a key. Kalshi has event tickers, MLB has gamePks.
-`build_kalshi_mlb_map.py` builds the join table, and this turned out to be the trickiest part of the whole pull.
+### Data quality tests
 
-The event ticker encodes the game. Two formats:
+The test suite checks the properties you'd want to verify before running any analysis on this data:
 
-- 2025: `KXMLBGAME-25SEP24KCLAA` = date + team pair, with an optional G1/G2 suffix for doubleheaders
-- 2026: `KXMLBGAME-26APR301235STLPIT` = date + start time (US/Eastern) + team pair
+- Every trade has a parent market, every market has a parent event
+- Prices are valid probabilities (between 0 and 1, YES + NO = 1.00)
+- Trade counts are positive
+- Markets close after they open
+- No trades happen before market open or more than 5 minutes after close
+- No trades from the future
+- Finalized markets have a result
+- All market statuses are from the known set
 
-The team pair is away team then home team, concatenated.
-Splitting it isn't trivial because abbreviations vary in length (is `AZSTL` AZ+STL or AZS+TL?), so the split uses the event's two market ticker suffixes, which name the teams individually.
-A hand-verified map then takes each abbreviation to an MLB team id.
-Arizona shows up as ARI in 2025 and AZ in 2026, because of course it does.
+If the pull scripts introduce bad data, the tests catch it before any analysis code touches it.
 
-Most events match on date + team pair and that's that. The rest:
+## The tricky part: joining two datasets that don't know about each other
 
-- **Doubleheaders.** Two games, same day, same teams. Resolved by the G1/G2 suffix (2025 format), or by which game ended just before the market settled, or by scheduled start proximity, in that order. The order matters: a traditional doubleheader's two scheduled starts can be minutes apart, which makes start proximity meaningless.
-- **Postponed games.** The ticker names a date with no game on it. A market settles within about a day of its game actually ending, so the fallback finds the makeup game whose end the settlement follows. The makeup can be months later, whenever the opponent visits next.
-- **Cancelled games.** These settle scalar instead of yes/no and are never matched to a game.
+Kalshi doesn't include MLB game IDs in its data. MLB doesn't know anything about Kalshi. The join has to be reconstructed from the ticker format and the schedule.
 
-The script fails loudly if the match rate drops below 99% and asserts the away-then-home convention holds on every date match.
-Then the check that makes me trust the whole thing: every finalized yes/no market's result must agree with the schedule's winner, compared by team id rather than home/away slot since a makeup game can swap venues.
-Across every checkable market: zero disagreements.
+### Parsing the ticker
 
-## Small things that bit me
+Kalshi event tickers encode the game date and team pair. Two formats exist:
 
-**Positional inserts.** `INSERT INTO trades SELECT * FROM df` matches columns by position, which silently depends on the pydantic model, the DataFrame, and the table all agreeing on column order. Reorder one field and values land in the wrong columns without any error, since everything is TEXT. DuckDB's `INSERT ... BY NAME` matches by column name instead. Two extra words per insert, one whole category of silent corruption gone.
+- **2025**: `KXMLBGAME-25SEP24KCLAA`
+    - date + two team abbreviations + (optional) doubleheader suffix
+    - date: 25SEP24 -> September 24th 2025
+    - team abbreviations: KC -> Kansas City Royals, LAA -> Los Angeles Angels
+    - Doubleheaders get a G1/G2 suffix: `KXMLBGAME-25APR26BALDETG1`.
+- **2026**: `KXMLBGAME-26APR301235STLPIT`
+    - adds the scheduled start time in Eastern: 12:35 ET 
 
-**Empty results crash weirdly.** `pl.DataFrame([])` has no columns at all, so inserting it fails with a confusing binder error. For trades that's handled with a simple skip (markets with zero trades are normal). For events and markets, an empty result means something is wrong (bad ticker, API change), so the script aborts early with a message that says so.
+The team pair is the two market-ticker suffixes concatenated with the away team first. So `STLPIT` means St. Louis (away) at Pittsburgh (home). The pair order was verified empirically across every date-matched event and holds without exception.
 
-**The list endpoint doesn't return everything.** My reasonability checks found 22 markets referencing events that weren't in the events table. Those events are never returned by the `/events` list endpoint, under any status filter, even though fetching them directly by ticker works fine. The fix: after pulling markets, any referenced event missing from the list gets fetched individually. I would never have found this without checking referential integrity, which brings me to the tests.
+A regex parses both formats and team abbreviations are mapped to MLB team IDs via a lookup table.
 
-## Trust, but verify
 
-After the pull worked end to end, I wrote the reasonability checks as pytest tests in `tests/`, so they're documented and rerunnable after every pull. Three files:
+### Matching to the schedule
 
-- `test_data_quality.py` - the Kalshi tables. Every trade's market exists and every market's event exists, every raw string casts cleanly, prices are strictly between 0 and 1 and yes + no = 1 on every one of the 25 million trades, markets close after they open, no trades before market open or from the future.
-- `test_mlb_data_quality.py` - the MLB tables and the map. Finalized games have scores and exactly one winner, exactly 30 teams appear, win probabilities sum to 100, the map covers 99%+ of game events, and the market-result-vs-schedule-winner agreement check.
-- `test_kalshi_mlb_map.py` - unit tests for the ticker parsing and game picking. The DST cases, both doubleheader formats, the postponed-game settlement fallback, and the zombie market that settled months after its game (it must not match).
+The parsed ticker gives a date, a team pair, and sometimes a start time.\
+The MLB schedule gives a `game_pk`, teams, and the scheduled start.
 
-The checks caught the missing-events bug and also surfaced a fun quirk: about 3,000 trades have timestamps up to 60 seconds after their market's official close time.
-Trading apparently runs slightly past the scheduled close.
-Harmless, but the kind of thing you want to know about your data before building analysis on top of it.
+Thus, this is the match logic I used
 
-## From mirrors to analysis-ready tables
+1. Find schedule games on the ticker's date with the same two teams
+2. If there's one candidate, done
+3. If there are multiple (doubleheader), disambiguate by the G1/G2 suffix (2025), by start-time proximity (2026), or by settlement time
 
-The database so far is a faithful mirror. An analysis wants one more layer: tables prepared for it specifically, so its notebook loads data with a straightforward read and does no cleaning of its own.
-For the MLB calibration analysis that layer is `prepare_mlb_calibration.py`, which builds tables namespaced `mlb_calib_*`: pre-game snapshots, entering-inning snapshots, and the full 24-hour pre-start trade window.
+#### Doubleheaders
+Traditional doubleheaders schedule both games minutes apart, so start-time proximity is useless. For those, the script looks at when the Kalshi market actually settled and matches it to whichever game ended just before that settlement. This works because Kalshi settles markets shortly after the game ends.
 
-The script owns the dataset definition, including the cleanups that would otherwise clutter the analysis:
+#### Postponed games
 
-- **What the universe filter drops.** Only markets that settled yes or no are kept: 7,028 markets across 3,514 events. Excluded are 88 markets that had not settled at pull time, 20 that settled at an intermediate value instead of 0 or 100, and 8 All-Star markets.
-- **Duplicate listings.** Seven games on 2025-04-18 were listed twice on Kalshi, so the 3,514 events cover 3,507 distinct games. The snapshot tables keep one row per game and side, last trade wins, so each real game counts once.
-- **A label fix.** One market is labeled "Chicago W". The script renames it to "Chicago WS" so it groups with the rest of the White Sox markets.
-- **Simultaneous trades.** The snapshot is defined as "the last trade before" some moment, but in 749 snapshots several trades share the last timestamp down to the microsecond, usually one taker order filling against several resting orders at once. There is no meaningful "last" among simultaneous trades, and letting the database pick one arbitrarily made builds nondeterministic. So the snapshot price is the average of the tied trades: deterministic, and at worst half a tick from any single print. The averaging sums integer cents and divides once, because averaging floats accumulates in whatever order the parallel aggregation happens to run, and that alone made rebuilds differ in the last decimal places.
+A postponed game's event stays on the original date, but the game gets rescheduled, sometimes months later. The ticker date won't match any schedule entry.
 
-Every run rebuilds from scratch, prints the accounting above, and asserts invariants: one row per game and side, prices strictly between 0 and 1, exactly 30 team labels.
+For these, the script falls back to settlement-based matching. It searches forward up to 200 days from the ticker date for a game between the same two teams whose ending aligns with the settlement time. The 200-day window is generous because a rain-postponed April game can be made up in September when the opponent next visits.
 
-And one deliberate omission: `refresh.py` never runs this script.
-A finished analysis's prepared tables are the exact dataset its write-up was computed from, and refreshing raw data must not silently change them.
-A single-row `mlb_calib_build_info` table records when the tables were built and what date range they cover, so a table frozen on old data can't be mistaken for a current one.
+Cancelled games resolve as "scalar" on Kalshi, which is their way of saying the contract was voided. These are excluded from the analysis.
 
-## Takeaways
+### Validation
 
-- Validate API responses at the boundary. Errors at fetch time are cheap, errors in analysis are expensive.
-- Retry with exponential backoff and jitter, and only retry errors that can actually change.
-- Idempotency comes from primary keys plus upserts. Once refetching is always safe, incremental logic gets simple.
-- Store raw data faithfully, convert with views. You can always fix a view. You can't un-bake a bad conversion.
-- Match insert columns by name, never by position.
-- When joining two independent data sources, find a semantic cross-check. Market results vs schedule winners is what makes me trust the map, not the match rate.
-- Write your sanity checks as tests. They found real issues that a working script happily hid.
+The mapping script runs three checks after building the join:
+
+1. **Match rate**: 99.6% of game events matched (3,558 of 3,572). The 14 unmatched are cancelled games (scalar results) and a handful of postponed games whose makeups haven't been played yet.
+2. **Orientation**: every date-matched event has away-first ticker order, confirming the concatenation convention.
+3. **Result agreement**: for every finalized market that resolved YES or NO, the Kalshi result matches the MLB schedule's winner. Zero disagreements across 7,000+ markets.
+
+## The prepared tables
+
+A separate preparation script sits between the joined data and the analysis notebook. This is an intentional separation of concerns. The analysis is able to focus solely on analysis, and all data preparation happens in the database scripts.
+
+The raw database has 25.7 million trades, but the analysis doesn't want all of them. Two trades on the same game 1 millisecond apart are highly correlated. Using both would inflate sample sizes and make results look more confident than they actually are.
+
+What the analysis needs is one price per game (or inning) that represents the market's best estimate at that point in time. So the preparation script takes the last trade before each game starts, and the last trade before each inning starts.
+
+A few data cleaning decisions are baked into this step. For example, when multiple trades share the same timestamp, the price is taken as the average of the prices. This is a reasonable decision because the median spread on these markets is 1 cent and the 90th percentile is 2 cents, so the averaging is at most shifting the price by about half a cent. It's also deterministic which is better than picking one of the tied trades arbitrarily because results will never change depending on the order the database happens to return rows.
+
+## Key takeaways
+
+- Validate data as it arrives, not after. Pydantic models on every API response mean you find problems at fetch time instead of weeks later in an analysis.
+- Retry selectively. Not every error is transient. Retrying a 404 is pointless, but giving up on a 429 is wasteful.
+- Exponential backoff with jitter keeps you from making things worse.
+- Store raw data raw. Cast and transform in views or preparation scripts, not on the way in. You can always re-derive a cleaner format from the original, but you can't recover precision you threw away.
+- Make your pipeline resumable and idempotent. A multi-hour pull that can't survive a crash is a multi-hour pull you'll end up running twice. And if you can't re-run it safely to pick up new data, you're stuck doing manual bookkeeping instead of letting the script figure out what's new.
+- Separate concerns. The pull scripts get data in. The preparation script gets data ready. The analysis notebook answers questions. None of them do the other's job.
+
+I hope you found this useful, learned something, and make lots of money.
