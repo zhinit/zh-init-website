@@ -7,12 +7,10 @@ export function Layout() {
       <header className={styles.header}>
         <nav className={styles.nav}>
           <NavLink to="/" className={styles.logo}>
-            zh_init
+            Home
           </NavLink>
-          <div className={styles.links}>
-            <NavLink to="/projects">Projects</NavLink>
-            <NavLink to="/blog">Blog</NavLink>
-          </div>
+          <NavLink to="/projects" className={styles.navLink}>Projects</NavLink>
+          <NavLink to="/blog" className={styles.navLink}>Blog</NavLink>
         </nav>
       </header>
       <main className={styles.main}>
@@ -21,8 +19,7 @@ export function Layout() {
       <footer className={styles.footer}>
         <div className={styles.footerLinks}>
           <a href="https://github.com/zhinit" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="https://x.com/zhinit_x" target="_blank" rel="noopener noreferrer">X</a>
-          <a href="https://www.linkedin.com/zh_init" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="https://www.linkedin.com/in/zhinit" target="_blank" rel="noopener noreferrer">LinkedIn</a>
         </div>
       </footer>
     </div>

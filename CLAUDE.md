@@ -82,6 +82,11 @@ Always use `uv` for Python: `uv run` to execute scripts, `uv add` to install
 packages, `uv venv` for environments. Never use bare `pip`, `python`, or
 `python3` directly.
 
+## Other projects
+
+- **Prediction Markets Analysis** — `/Users/hookline/coding/projects/pma`
+- **Kick with Reverb** — `/Users/hookline/coding/projects/kick-with-reverb`
+
 ---
 
 # Question answering

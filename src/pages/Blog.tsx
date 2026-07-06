@@ -7,10 +7,6 @@ export function Blog() {
     <>
       <div className={styles.header}>
         <p className={styles.label}>Blog</p>
-        <h1 className={styles.title}>Writing</h1>
-        <p className={styles.description}>
-          Technical write-ups on things worth understanding deeply.
-        </p>
       </div>
 
       {posts.length === 0 ? (

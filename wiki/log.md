@@ -1,5 +1,51 @@
 # Wiki Log
 
+## 2026-07-05 — Vercel domain configuration (full documentation)
+
+**Sources archived (8):**
+- `vercel-add-domain.md` — adding custom domains via dashboard, apex/subdomain/wildcard configuration, TXT verification (Vercel Docs)
+- `vercel-working-with-domains.md` — domain ownership, buying through Vercel vs third-party, apex/subdomain/wildcard concepts, email setup (Vercel Docs)
+- `vercel-deploying-redirecting-domains.md` — deployment behavior, www redirects, CNAME vs A record trade-offs, Anycast (Vercel Docs)
+- `vercel-managing-dns-records.md` — adding/verifying/removing records, DNS presets, zone file import, migration workflow (Vercel Docs)
+- `vercel-working-with-nameservers.md` — Vercel nameservers (ns1/ns2.vercel-dns.com), auto DNS records, wildcard support (Vercel Docs)
+- `vercel-working-with-dns.md` — DNS record types table (A/AAAA/ALIAS/CAA/CNAME/HTTPS/MX/NS/SRV/TXT), TTL, propagation, best practices (Vercel Docs)
+- `vercel-troubleshooting-domains.md` — misconfigured domains, DNS issues, SSL certificate issues, CAA records, IPv6, Anycast, domain ownership errors (Vercel Docs)
+- `temperstack-vercel-custom-domain.md` — third-party walkthrough of Vercel domain setup (TemperStack, April 2026)
+
+**Wiki pages updated (2):**
+- `vercel-custom-domains.md` — expanded from basic CLI guide to comprehensive reference: three setup paths (external DNS / Vercel NS / buy via Vercel), www vs apex recommendation with CNAME rationale, redirects, deployment behavior, SSL (Let's Encrypt HTTP-01/DNS-01), email (MX records, no Vercel mail service), wildcard domains, IPv6 (unsupported), Anycast routing, DNS migration workflow, troubleshooting table, diagnostic tools, supported record types
+- `dns-records.md` — added DNS resolution overview, ALIAS/HTTPS/CAA/SRV record types, TTL section with migration best practices, expanded propagation details, verification commands, updated CNAME section with RFC 1034 citation and CNAME-vs-A rationale
+
+**Wiki index updated:** expanded descriptions for [[dns-records]] and [[vercel-custom-domains]].
+
+---
+
+## 2026-07-05 — Domain registration, registrars, DNS, WHOIS/RDAP
+
+**Sources archived (6):**
+- `name-com-how-to-register-domain.md` — complete domain registration guide: TLDs, naming tips, pricing, post-registration steps, common mistakes (name.com)
+- `instant-domain-search-best-registrars-2026.md` — 9-registrar comparison with pricing tables, renewal trap analysis, search privacy (Instant Domain Search)
+- `cloudflare-registrar-docs.md` — at-cost pricing model, DNSSEC, WHOIS redaction, auto-renewal (Cloudflare Developer Docs)
+- `vercel-custom-domain-setup.md` — CLI walkthrough for adding custom domains, DNS records, SSL provisioning, external DNS setup (Vercel Docs)
+- `dynadot-registering-first-domain.md` — domain fundamentals, registry vs registrar distinction, registration steps, security (Dynadot)
+- `dynadot-whois-vs-rdap.md` — WHOIS sunset (Jan 28, 2025), RDAP protocol, technical differences, privacy implications, ccTLD exception (Dynadot)
+
+**Failed sources (3):**
+- ICANN domain registration process page — HTTP 403
+- ICANN registering domain names page — HTTP 403
+- ICANN registrants information page — HTTP 403
+
+**Wiki pages created (5):**
+- `domain-registration.md` — what domains are, structure, TLDs, ICANN/registry/registrar chain, registration process, pricing (incl. renewal trap), naming tips
+- `domain-registrars.md` — 9-registrar comparison table (Cloudflare, Porkbun, Spaceship, NameSilo, Dynadot, Namecheap, Hostinger, Squarespace, GoDaddy), individual profiles, recommendations by use case
+- `dns-records.md` — A, AAAA, CNAME records, apex domain restriction, DNS propagation, nameserver options, Vercel-specific values
+- `whois-rdap.md` — WHOIS history and limitations, RDAP as replacement (Jan 2025), tiered access, privacy/GDPR, ccTLD exception
+- `vercel-custom-domains.md` — step-by-step Vercel domain setup (CLI), DNS record configuration, SSL provisioning, external DNS provider workflow
+
+**Wiki index updated:** added Domains & DNS section with 5 new entries.
+
+---
+
 ## 2026-06-30 — CSS Theming
 
 **Sources archived (7 new, 1 existing):**

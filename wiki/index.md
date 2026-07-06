@@ -78,6 +78,14 @@ in `raw/`. Use `/research <topic>` to add new knowledge.
 - [[css-logical-properties]] — flow-relative alternatives to physical properties, block/inline dimensions, i18n
 - [[css-theming]] — color-scheme, prefers-color-scheme, light-dark(), design token layers, dark mode patterns, contrast-color()
 
+## Domains & DNS
+
+- [[domain-registration]] — what domains are, ICANN/registry/registrar chain, registration process, pricing, TLDs, naming tips
+- [[domain-registrars]] — 2026 registrar comparison (Cloudflare, Porkbun, Namecheap, GoDaddy, etc.), pricing tables, recommendations
+- [[dns-records]] — A, AAAA, CNAME, ALIAS, HTTPS, CAA, MX, TXT, SRV records, TTL, propagation, nameserver options
+- [[whois-rdap]] — WHOIS sunset (Jan 2025), RDAP replacement, privacy, tiered access
+- [[vercel-custom-domains]] — full Vercel domain setup (3 paths), www vs apex, redirects, SSL, email, wildcards, DNS migration, troubleshooting
+
 ## Portfolio & Job Search
 
 - [[portfolio-website]] — whether to build a portfolio site, what it should contain, the contrarian case
