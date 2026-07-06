@@ -28,6 +28,15 @@ export const projects = [
     app: "https://kick-with-reverb.vercel.app",
     posts: [],
   },
+  {
+    title: "Are Stocks Normal?",
+    slug: "are-stocks-normal",
+    description:
+      "A Streamlit dashboard that demonstrates the normality assumption for stock returns is usually not true. This is done using QQ-plots, hypothesis tests, and visualizations completed interactively based on user input.",
+    github: "https://github.com/zhinit/areStocksNormal",
+    app: "https://arestocksnormal.streamlit.app",
+    posts: [],
+  },
 ];
 
 function GitHubIcon() {
