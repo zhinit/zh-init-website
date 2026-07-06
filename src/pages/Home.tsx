@@ -20,7 +20,7 @@ export function Home() {
           <li>Bachelor's in Math from Towson</li>
           <li>
             Five YOE developing financial models, doing data analysis, and
-            assesing risk at KKR and Transamerica
+            assessing risk at KKR and Transamerica
           </li>
         </ul>
         <p className={styles.bio}>
