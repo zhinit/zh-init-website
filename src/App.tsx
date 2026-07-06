@@ -9,6 +9,10 @@ const BlogPost = lazy(() =>
   import('./pages/BlogPost').then((m) => ({ default: m.BlogPost })),
 )
 
+const ProjectPage = lazy(() =>
+  import('./pages/ProjectPage').then((m) => ({ default: m.ProjectPage })),
+)
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -16,6 +20,14 @@ export default function App() {
         <Route element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="projects" element={<Projects />} />
+          <Route
+            path="projects/:slug"
+            element={
+              <Suspense fallback={null}>
+                <ProjectPage />
+              </Suspense>
+            }
+          />
           <Route path="blog" element={<Blog />} />
           <Route
             path="blog/:slug"

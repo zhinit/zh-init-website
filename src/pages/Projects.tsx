@@ -1,9 +1,10 @@
 import { Link } from 'react-router'
 import styles from './Projects.module.css'
 
-const projects = [
+export const projects = [
   {
     title: 'Prediction Markets Analysis',
+    slug: 'prediction-markets-analysis',
     description:
       'Are prediction markets priced accurately? This project pulls 25 million trades from Kalshi and every MLB game from the MLB Stats API into a local DuckDB database, then tests whether game winner market prices reflect actual win probabilities.',
     github: 'https://github.com/zhinit/prediction-market-analysis',
@@ -20,6 +21,7 @@ const projects = [
   },
   {
     title: 'Kick With Reverb',
+    slug: 'kick-with-reverb',
     description:
       'A browser-based DAW for techno producers. Kick, noise, and reverb layers run through a C++ JUCE audio engine compiled to WebAssembly. Includes user presets, full keyboard shortcuts, and AI kick generation using a PyTorch diffusion model on serverless GPUs.',
     github: 'https://github.com/zhinit/KickWithReverb',
@@ -57,7 +59,9 @@ export function Projects() {
         {projects.map((project) => (
           <li key={project.title} className={styles.item}>
             <div className={styles.titleRow}>
-              <h2 className={styles.projectTitle}>{project.title}</h2>
+              <h2 className={styles.projectTitle}>
+                <Link to={`/projects/${project.slug}`}>{project.title}</Link>
+              </h2>
               <div className={styles.icons}>
                 <a
                   href={project.github}
