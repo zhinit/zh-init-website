@@ -1,5 +1,23 @@
 # Wiki Log
 
+## 2026-07-07 — Vercel rewrites and SPA routing
+
+**Sources archived (4):**
+- `vercel-rewrites.md` — rewrites documentation: same-application, external origin, wildcards, regex, caching, service rewrites (Vercel Docs)
+- `vercel-vite-framework.md` — Vite on Vercel: env vars, functions, SSR, SPA deep linking fix (Vercel Docs)
+- `vercel-json-configuration.md` — vercel.json reference: rewrites property, schema, supported properties (Vercel Docs)
+- `vercel-404-troubleshooting.md` — 404 causes: SPA misconfiguration, output directory, build settings, deployment access (Vercel KB)
+
+**Wiki pages created (1):**
+- `vercel-rewrites.md` — SPA catch-all rewrite pattern, rewrite syntax (source/destination/has/missing), path parameters, wildcards, regex, external origin rewrites with caching (April 2026 default), service rewrites, framework considerations
+
+**Wiki pages updated (1):**
+- `vite-production-builds.md` — added SPA deep linking note under Vercel deployment, cross-reference to [[vercel-rewrites]]
+
+**Wiki index updated:** added [[vercel-rewrites]] entry under Domains & DNS.
+
+---
+
 ## 2026-07-05 — Vercel domain configuration (full documentation)
 
 **Sources archived (8):**

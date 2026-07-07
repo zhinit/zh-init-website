@@ -120,6 +120,10 @@ Auto-detects Vite. Install CLI (`npm i -g vercel`) and run `vercel`, or connect
 a Git repo. Preview deployments for branches, production for main.
 (source: vite-deploying.md)
 
+SPA deep linking (direct navigation to client-side routes) does not work out of
+the box — requires a catch-all rewrite in `vercel.json`. See
+[[vercel-rewrites]]. (source: vercel-vite-framework.md)
+
 ### Netlify
 
 CLI: `ntl init` then `ntl deploy --prod`. Or connect Git repo via dashboard.

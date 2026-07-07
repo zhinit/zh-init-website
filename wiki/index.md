@@ -85,6 +85,7 @@ in `raw/`. Use `/research <topic>` to add new knowledge.
 - [[dns-records]] — A, AAAA, CNAME, ALIAS, HTTPS, CAA, MX, TXT, SRV records, TTL, propagation, nameserver options
 - [[whois-rdap]] — WHOIS sunset (Jan 2025), RDAP replacement, privacy, tiered access
 - [[vercel-custom-domains]] — full Vercel domain setup (3 paths), www vs apex, redirects, SSL, email, wildcards, DNS migration, troubleshooting
+- [[vercel-rewrites]] — SPA catch-all rewrite, path parameters, wildcards, regex, external origin proxying, caching
 
 ## Portfolio & Job Search
 
