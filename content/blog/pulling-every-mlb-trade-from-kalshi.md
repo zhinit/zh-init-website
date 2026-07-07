@@ -18,13 +18,13 @@ A write up for the subsequent analysis can be found [here](/blog/mlb_game_winner
 
 Kalshi lists a "Game Winner" market for every MLB game. Each game gets two binary contracts, one per team. You buy YES on the team you think will win, and the contract settles at \$1 or \$0 after the game ends. If a YES contract is trading at 45 cents, the market is saying that team has a 45% chance of winning.
 
-I want to know whether those prices are any good i.e. is a team priced at 45 cents actually winning 45% of the time? And if not, is the gap big enough to trade profitably after fees?
+I want to know whether those prices are any good i.e. is a team priced at 45 cents actually winning 45% of the time? If not, is the gap big enough to trade profitably after fees?
 
 To answer that I need two things
 - Trades on every Game Winner market (from Kalshi)
 - The actual game outcomes (from MLB)
 
-The Kalshi data tells me what the expected probability determined by the free world. The MLB data tells me the actual empirical probability. Match them up and you can check across 3,500+ games.
+The Kalshi data tells me the expected probability determined by the free world. The MLB data tells me the actual empirical probability. Match them up and you can check across 3,500+ games.
 
 The final dataset lives in a DuckDB database. 25.7 million trades, 3,507 games with full play-by-play. 
 
@@ -69,7 +69,7 @@ The schedule is fetched in month-sized chunks because the API chokes on ranges l
 
 ## Making it reliable
 
-When you're pulling 25 million trades across thousands of markets, the pull will take several hours. Things will go wrong i.e. servers will hiccup, connections will drop, and rate limits will kick in.
+When you're pulling 25 million trades across thousands of markets, the pull will take several hours and things will go wrong i.e. servers will hiccup, connections will drop, and rate limits will kick in.
 
 ### Pagination
 
