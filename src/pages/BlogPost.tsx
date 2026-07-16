@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router'
 import Markdown from 'react-markdown'
+import rehypeRaw from 'rehype-raw'
 import remarkGfm from 'remark-gfm'
 import { formatDate, getPost } from '../utils/posts'
 import styles from './BlogPost.module.css'
@@ -28,6 +29,7 @@ export function BlogPost() {
       <div className={styles.content}>
         <Markdown
           remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw]}
           components={{
             a: ({ href, children, ...props }) => {
               const isExternal =

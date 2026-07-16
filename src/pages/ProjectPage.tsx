@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router'
 import { projects } from './Projects'
+import { getPost } from '../utils/posts'
 import styles from './ProjectPage.module.css'
 
 function GitHubIcon() {
@@ -71,9 +72,9 @@ export function ProjectPage() {
         <section className={styles.postsSection}>
           <h2 className={styles.postsHeading}>Write-ups</h2>
           <ul className={styles.posts}>
-            {project.posts.map((post) => (
-              <li key={post.slug}>
-                <Link to={`/blog/${post.slug}`}>{post.title}</Link>
+            {project.posts.map((slug) => (
+              <li key={slug}>
+                <Link to={`/blog/${slug}`}>{getPost(slug)?.title ?? slug}</Link>
               </li>
             ))}
           </ul>

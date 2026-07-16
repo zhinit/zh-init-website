@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { getPost } from "../utils/posts";
 import styles from "./Projects.module.css";
 
 export const projects = [
@@ -8,16 +9,7 @@ export const projects = [
     description:
       "Are prediction markets priced accurately? This project pulls 25 million trades from Kalshi and every MLB game from the MLB Stats API into a local DuckDB database, then tests whether game winner market prices reflect actual win probabilities.",
     github: "https://github.com/zhinit/prediction-market-analysis",
-    posts: [
-      {
-        title: "Pulling every MLB trade from Kalshi",
-        slug: "pulling-every-mlb-trade-from-kalshi",
-      },
-      {
-        title: "Are Kalshi MLB Game Winner Prices Actually Accurate?",
-        slug: "mlb_game_winners_analysis",
-      },
-    ],
+    posts: ["pulling-every-mlb-trade-from-kalshi", "mlb_game_winners_analysis"],
   },
   {
     title: "Kick With Reverb",
@@ -26,7 +18,7 @@ export const projects = [
       "Full stack audio playground for techno producers. C++/WASM and multithreading are used to achieve sub 3ms latency for high performance audio. I even trained a latent diffusion model from scratch to generate AI kick drum samples. I built a custom DSP audio engine complete with convolution reverb, multiband compression, waveshaping and more.",
     github: "https://github.com/zhinit/KickWithReverb",
     app: "https://kick-with-reverb.vercel.app",
-    posts: [],
+    posts: ["training-a-kick-drum-diffusion-model"],
   },
   {
     title: "Are Stocks Normal?",
@@ -108,9 +100,9 @@ export function Projects() {
               <>
                 <h3 className={styles.postsHeading}>Blog posts</h3>
                 <ul className={styles.posts}>
-                  {project.posts.map((post) => (
-                    <li key={post.slug}>
-                      <Link to={`/blog/${post.slug}`}>{post.title}</Link>
+                  {project.posts.map((slug) => (
+                    <li key={slug}>
+                      <Link to={`/blog/${slug}`}>{getPost(slug)?.title ?? slug}</Link>
                     </li>
                   ))}
                 </ul>
