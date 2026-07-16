@@ -17,6 +17,7 @@ export function Layout() {
         <Outlet />
       </main>
       <footer className={styles.footer}>
+        <p className={styles.footerNote}>Open to SWE, ML, and data roles</p>
         <div className={styles.footerLinks}>
           <a href="https://github.com/zhinit" target="_blank" rel="noopener noreferrer">GitHub</a>
           <a href="mailto:zacharyandrewhill@gmail.com">Email</a>

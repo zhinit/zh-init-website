@@ -108,17 +108,26 @@
 }
 
 .footer {
-  border-top: 1px solid var(--color-border-subtle);
   max-width: var(--content-width);
   width: 100%;
   margin: 0 auto;
   padding: var(--space-8) var(--space-6);
 }
 
+.footerNote {
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xs);
+  letter-spacing: 0.02em;
+  margin-bottom: var(--space-4);
+}
+
 .footerLinks {
   display: flex;
   justify-content: center;
   gap: var(--space-12);
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: var(--space-4);
 }
 
 .footerLinks a {
