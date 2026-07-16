@@ -1,18 +1,18 @@
 ---
 title: How To Train a Generative Kick Drum Model on Your Old Linux Desktop With 6GB of VRAM
 date: 2026-07-16
-description: I trained a VAE, a diffusion U-Net, and a HiFi-GAN vocoder from scratch on 13,615 kick drums from my sample library, using a 10-year-old Linux desktop with 6GB of VRAM. Now anyone can press a button and get a new kick.
+description: I trained a VAE, a diffusion U-Net, and a HiFi-GAN vocoder from scratch on 13,615 kick drums from my sample library, using a 7-year-old GPU with 6GB of VRAM. Now anyone can press a button and get a new kick.
 ---
 
 I keep telling my friends who listen to techno that it's just a kick drum with reverb on it.
 
 This lighthearted joke is where [KickWithReverb](https://kick-with-reverb.vercel.app) started. So I built a 'Fully Featured DAW for the Average Techno Producer' around it. Pick a kick, pick a noise layer, pick a convolution reverb impulse response, twist some knobs, done. You are now a world-class techno producer.
 
-This article goes through how I trained and deployed a generative latent diffusion kick drum model from scratch on more than 13,000 kick drums from my personal sample library on a local Linux machine with 6GB of VRAM.
+This article goes through how I trained and deployed a generative latent diffusion kick drum model from scratch on more than 13,000 kick drums from my personal sample library on a local Linux machine with a 7-year-old NVIDIA GeForce GTX 1660 SUPER (6GB of VRAM).
 
 The live app can be found [here](https://kick-with-reverb.vercel.app), the project code on [GitHub](https://github.com/zhinit/KickWithReverb), and the model weights on [HuggingFace](https://huggingface.co/zhinit/kick-gen-v1).
 
-<img src="/blog/images/frog.png" alt="The 10-year-old desktop tower sitting under a wall-mounted TV, with the diffusion U-Net code open in a terminal over a frog wallpaper" width="450">
+<img src="/blog/images/frog.png" alt="The old desktop tower sitting under a wall-mounted TV, with the diffusion U-Net code open in a terminal over a frog wallpaper" width="450">
 
 You can hear a dry and wet version of a generated kick below.
 
@@ -62,7 +62,7 @@ This gives us three models, with three separate training runs:
 3. **Vocoder (HiFi-GAN)**
     - turns a mel spectrogram back into the final audio waveform you hear
 
-I trained all three models on a 10-year-old Linux desktop I have sitting around with 6GB of VRAM. I never had to rent a cloud A100, and you don't need a billion dollar budget to train good models either.
+I trained all three models on a 7-year-old GPU with 6GB of VRAM, in an old Linux desktop I have sitting around. I never had to rent a cloud A100, and you don't need a billion dollar budget to train good models either.
 
 To put everything together, the diagram below should help you understand the entire process. The top of the diagram is used for training, and the bottom is used for generating kicks after it starts from a random latent tensor.
 
@@ -216,7 +216,7 @@ Training walks the top path. Every kick in the library becomes a mel spectrogram
 
 Generating a kick walks the bottom path. Start from a random latent tensor, let the diffusion model denoise it into a kick latent, decode that into a mel spectrogram with the VAE decoder, and hand the spectrogram to the vocoder for the final audio.
 
-Each of the three models took roughly a day to train, three separate runs on the same 10-year-old desktop. 
+Each of the three models took roughly a day to train, three separate runs on the same 7-year-old GPU. 
 
 ## Text conditioning
 
@@ -277,7 +277,7 @@ I added rate limits to keep GPU costs under control and keep load times quick wh
 
 ## What I would improve if I did it again
 
-Training on my own machine was fun. I learned to set up an SSH connection so I could control the desktop from my laptop, and there is something satisfying about a 10-year-old computer in the corner quietly training a generative model. But it was impractical. Each model took about a day to train, so every experiment costs 1-3 days. The models could have benefited from proper hyperparameter tuning with a much larger grid of possibilities.
+Training on my own machine was fun. I learned to set up an SSH connection so I could control the desktop from my laptop, and there is something satisfying about an old computer in the corner quietly training a generative model. But it was impractical. Each model took about a day to train, so every experiment costs 1-3 days. The models could have benefited from proper hyperparameter tuning with a much larger grid of possibilities.
 
 ### Hyperparameters I would tune
 
@@ -292,7 +292,7 @@ When I extracted keywords from the filenames, numbers were dropped. That rule de
 
 ## Key takeaways
 
-- **It is possible to train a good model even on a 10-year-old machine with 6GB of VRAM.**
+- **It is possible to train a good model even on a 7-year-old GPU with 6GB of VRAM.**
     - Compressing 88,200 audio samples down to 352 floats is what makes it fit.
     - Select hyperparameters that suit your hardware, like training at lower precision where it is stable.
 - **You may already be sitting on a dataset.**
