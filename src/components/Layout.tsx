@@ -19,6 +19,7 @@ export function Layout() {
       <footer className={styles.footer}>
         <div className={styles.footerLinks}>
           <a href="https://github.com/zhinit" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="mailto:zacharyandrewhill@gmail.com">Email</a>
           <a href="https://www.linkedin.com/in/zhinit" target="_blank" rel="noopener noreferrer">LinkedIn</a>
         </div>
       </footer>
