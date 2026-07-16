@@ -4,7 +4,8 @@ The CSS Colors module defines color-related properties, data types, and
 functions for specifying and manipulating colors in CSS.
 (mdn-css-colors.md)
 
-See also: [[color-theory]].
+See also: [[color-theory]], [[color-spaces-and-gamut]],
+[[browser-color-management]].
 
 ## Core Properties
 
@@ -48,6 +49,27 @@ hsl(120 100% 50% / 0.5)
 oklch(0.7 0.15 180 / 0.5)
 color(display-p3 1 0 0 / 0.5)
 ```
+
+### Wide-gamut fallbacks
+
+Browsers ignore CSS properties with invalid values, so an sRGB declaration
+before a `color()` declaration acts as a fallback in browsers without
+support (source: webkit-wide-gamut-color-css-display-p3.md):
+
+```css
+header {
+    color: rgb(0, 255, 0);
+    color: color(display-p3 0 1 0);
+}
+```
+
+For variables, `@supports (color: color(display-p3 1 1 1))` gates the
+wide-gamut definition (source: webkit-wide-gamut-color-css-display-p3.md).
+Display hardware capability is detected separately with the `color-gamut`
+media query (`p3` or `rec2020`), usable in `<picture>` sources,
+stylesheets, and `window.matchMedia`
+(source: webkit-improving-color-on-the-web.md). See
+[[color-spaces-and-gamut]] for what Display P3 covers.
 
 ## Color Manipulation
 

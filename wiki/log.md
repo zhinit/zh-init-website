@@ -1,5 +1,41 @@
 # Wiki Log
 
+## 2026-07-08 — Hacker News rules, moderation, and shadow banning
+
+**Sources archived (5):**
+- `hn-official-guidelines.md` — official HN submission and comment guidelines (news.ycombinator.com)
+- `hn-official-faq.md` — official HN FAQ: ranking, voting, flagging, account features (news.ycombinator.com)
+- `hn-undocumented-features.md` — undocumented HN behaviors: shadow banning, karma thresholds, voting rings, flame-war detector, second-chance pool, implicit downranking (minimaxir/hacker-news-undocumented, GitHub)
+- `hamy-hn-shadow-ban-detection.md` — shadow ban detection guide: three ban types (user/domain/IP), incognito comparison method, showdead (HAMY)
+- `syften-hn-posting-guide.md` — complete HN posting guide: rules, self-promotion, Show HN, timing, what kills posts, what reaches front page (Syften)
+
+**Wiki pages created (3):**
+- `hacker-news.md` — content standard, self-promotion rules (occasional OK, primary use must be curiosity), title rules, post types (link/Show HN/Ask HN), what reaches front page (blog posts largest category, technical lessons and surprising failures strongest), timing (US business hours, be available to respond)
+- `hn-moderation.md` — ranking algorithm (points/time + flags + moderator), flagging at 31 karma, vouching at 31 karma, downvoting at 501 karma, flame-war detector, second-chance pool (/pool), implicit downranking (no-URL posts, tutorials, politics), edit/delete limits (2 hours), anti-voting manipulation, moderators (dang, Scott Bell)
+- `hn-shadow-bans.md` — three ban types (user/domain/IP), detection via incognito comparison of submitted/threads pages, domain check via /from?site=, common causes (primarily self-promotion, voting rings, new account spam), appeal via hn@ycombinator.com, vouching to resurrect [dead] content
+
+**Wiki index updated:** added Hacker News section with 3 new entries.
+
+---
+
+## 2026-07-08 — LinkedIn content publishing (posts, articles, newsletters, API)
+
+**Sources archived (5):**
+- `linkedin-help-content-types.md` — official LinkedIn definitions of posts, articles, reposts, and newsletters (LinkedIn Help)
+- `evergreenfeed-linkedin-articles-guide.md` — step-by-step article publishing guide, formatting options, SEO, distribution tips (EvergreenFeed)
+- `brandghost-linkedin-articles-vs-newsletters.md` — articles vs newsletters comparison: distribution, subscribers, availability, SEO (BrandGhost)
+- `linkedin-posts-api-docs.md` — Posts API documentation: endpoints, schemas, article/link sharing, mentions, hashtags, content types (Microsoft Learn / LinkedIn)
+- `linkedin-share-on-linkedin-docs.md` — Share on LinkedIn consumer integration: OAuth, w_member_social, text/article/image shares, rate limits (Microsoft Learn / LinkedIn)
+
+**Wiki pages created (3):**
+- `linkedin-content-types.md` — three publishing formats (posts, articles, newsletters), character limits, distribution mechanics, outbound link reach penalty, reposts, when to use each
+- `linkedin-articles.md` — publishing workflow (7 steps), editor formatting options, content specs (125K chars, 1–2K words recommended), SEO via linkedin.com/pulse/, distribution tips (hashtags, timing, link-in-comment), republishing blog posts (canonical URL limitation), articles vs newsletters comparison
+- `linkedin-api.md` — Posts API (/rest/posts) as current endpoint, OAuth scopes (w_member_social, w_organization_social), article/link sharing with explicit metadata, image upload flow, mentions/hashtags syntax, rate limits (150/day member, 100K/day app), key endpoints table, limitations (no scheduling, no article publishing via API, no URL scraping)
+
+**Wiki index updated:** added LinkedIn section with 3 new entries.
+
+---
+
 ## 2026-07-07 — Vercel rewrites and SPA routing
 
 **Sources archived (4):**
@@ -470,3 +506,25 @@ API reference — components and utilities (7):
 - `portfolio-hiring-manager-perspectives.md` — synthesized HM views
 - `portfolio-design.md` — design principles and platform choices
 - `cs-job-search-2026.md` — broader job market context
+
+## 2026-07-16 — Browser color management, wide gamut, and HDR images
+
+**Sources archived (7):**
+- `webkit-improving-color-on-the-web.md` — WebKit blog (2016): color spaces, gamut, color-matching, sRGB assumption, color-gamut media query
+- `webkit-wide-gamut-color-css-display-p3.md` — WebKit blog (2020): color(display-p3) syntax, fallbacks, hardware support
+- `gregbenz-iso-21496-1-gain-maps.md` — ISO 21496-1 gain map standard, legacy encodings, support status (Jan 2025)
+- `gregbenz-apple-hdr-iso-gain-map.md` — Apple macOS 15 / iOS 18 HDR updates, Adaptive HDR, tone mapping quality (Sep 2024)
+- `gregbenz-hdr-display-photo-software.md` — continuously updated HDR software support matrix (browsers, OSes, websites)
+- `apple-developer-applying-apple-hdr-effect.md` — Apple's gain map format and decoding math (primary source)
+- `scottstuff-end-of-srgb-hdr-images-2026.md` — state of sRGB/HDR on the web, March 2026
+
+**Wiki pages created (5):**
+- `color-spaces-and-gamut.md` — sRGB, Display P3, Rec. standards, depth vs gamut
+- `browser-color-management.md` — tagged/untagged handling, history, serving strategy, tooling gaps
+- `hdr-images.md` — HDR fundamentals, headroom, PQ/HLG, formats, tone mapping
+- `hdr-gain-maps.md` — gain map concept, ISO 21496-1, Apple format, transcoding libraries
+- `hdr-browser-support.md` — support matrix as of early 2026
+
+**Wiki pages updated (2):**
+- `css-colors.md` — added wide-gamut fallback patterns and links to new pages
+- `index.md` — new "Color & Images on the Web" section

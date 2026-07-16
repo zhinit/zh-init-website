@@ -78,6 +78,14 @@ in `raw/`. Use `/research <topic>` to add new knowledge.
 - [[css-logical-properties]] — flow-relative alternatives to physical properties, block/inline dimensions, i18n
 - [[css-theming]] — color-scheme, prefers-color-scheme, light-dark(), design token layers, dark mode patterns, contrast-color()
 
+## Color & Images on the Web
+
+- [[color-spaces-and-gamut]] — sRGB, Display P3, Rec. 709/2020/2100, gamut, color depth, conversions
+- [[browser-color-management]] — tagged vs untagged images, sRGB assumption, serving wide-gamut, tooling gaps
+- [[hdr-images]] — HDR vs SDR, headroom/stops, PQ vs HLG transfer functions, bit depth, file formats, tone mapping
+- [[hdr-gain-maps]] — SDR base + gain layer, ISO 21496-1, Apple/Adobe/Android encodings, decoding math, transcoding libraries
+- [[hdr-browser-support]] — per-browser/OS/website HDR support as of early 2026, remaining bottlenecks
+
 ## Domains & DNS
 
 - [[domain-registration]] — what domains are, ICANN/registry/registrar chain, registration process, pricing, TLDs, naming tips
@@ -86,6 +94,18 @@ in `raw/`. Use `/research <topic>` to add new knowledge.
 - [[whois-rdap]] — WHOIS sunset (Jan 2025), RDAP replacement, privacy, tiered access
 - [[vercel-custom-domains]] — full Vercel domain setup (3 paths), www vs apex, redirects, SSL, email, wildcards, DNS migration, troubleshooting
 - [[vercel-rewrites]] — SPA catch-all rewrite, path parameters, wildcards, regex, external origin proxying, caching
+
+## LinkedIn
+
+- [[linkedin-content-types]] — posts vs articles vs newsletters: reach, formatting, persistence, distribution tradeoffs
+- [[linkedin-articles]] — publishing workflow, formatting options, SEO, republishing blog posts, articles vs newsletters
+- [[linkedin-api]] — Posts API, OAuth scopes, article/link sharing, image uploads, mentions/hashtags, rate limits
+
+## Hacker News
+
+- [[hacker-news]] — submission rules, self-promotion policy, post types, title rules, what reaches the front page
+- [[hn-moderation]] — ranking algorithm, flagging/vouching thresholds, flame-war detector, second-chance pool, implicit downranking
+- [[hn-shadow-bans]] — three ban types (user/domain/IP), detection methods, common causes, appeal process, vouching
 
 ## Portfolio & Job Search
 
