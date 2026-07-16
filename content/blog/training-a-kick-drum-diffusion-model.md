@@ -110,9 +110,7 @@ Hopping 512 samples at a time through 2 seconds of audio gives 173 slices, which
 On a linear scale, equal steps add: 100, 200, 300, 400.\
 On a log scale, equal steps multiply: 100, 200, 400, 800.
 
-Human hearing is roughly logarithmic. Doubling a frequency always sounds like the same jump of one octave, whether that is 60Hz to 120Hz or 5,000Hz to 10,000Hz. 
-
-A bass player jumping one octave could be from 60Hz to 120Hz which is a huge difference. However, a bird singing one note vs a mildly off-pitch note could be 2,000Hz vs 2,060Hz, which is pretty much imperceptible. When was the last time you noticed a bird that needed the help of auto-tune?
+Human hearing is roughly logarithmic. A bass player jumping one octave could be from 60Hz to 120Hz which is a huge difference. However, a bird singing one note vs a mildly off-pitch note could be 2,000Hz vs 2,060Hz, which is pretty much imperceptible. When was the last time you noticed a bird that needed the help of auto-tune?
 
 Loudness works the same way, which is why volume is measured in dB (a log unit) instead of raw air pressure.
 
