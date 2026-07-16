@@ -237,6 +237,10 @@ The plan was to let users type keywords like "punchy" or "clean" and get a kick 
 
 The model did respond to keywords. The problem was that a lot of keywords responded back with garbage, probably because there just was not enough training data behind them. For example "techno" only appears in 39 of the 13,615 filenames, and produced undesirable harsh metallic kicks. The keyword this entire app is themed around was not a good one.
 
+*A kick generated with the "techno" keyword:*
+
+<audio controls src="/blog/audio/generated_kick_techno.wav"></audio>
+
 So I took a practical approach. I tested keywords by ear until I found ones that consistently generated nice-sounding kicks, and "hit house" was the winner. Instead of giving users a text box, the generate button just always asks for that.
 
 ```python
