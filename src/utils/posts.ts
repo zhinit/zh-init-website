@@ -2,6 +2,7 @@ interface PostFrontmatter {
   title: string
   date: string
   description: string
+  hn?: string
 }
 
 export interface Post extends PostFrontmatter {
@@ -28,13 +29,13 @@ function parseFrontmatter(raw: string): { frontmatter: PostFrontmatter; body: st
     fields[line.slice(0, colon).trim()] = line.slice(colon + 1).trim()
   }
 
-  const { title, date, description } = fields
+  const { title, date, description, hn } = fields
   if (!title || !date || !description) {
     throw new Error('Post frontmatter must include title, date, and description')
   }
 
   return {
-    frontmatter: { title, date, description },
+    frontmatter: { title, date, description, hn },
     body: raw.slice(match[0].length),
   }
 }

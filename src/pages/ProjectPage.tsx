@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router'
 import { projects } from './Projects'
+import { HNMark } from '../components/HNMark'
 import { getPost } from '../utils/posts'
 import styles from './ProjectPage.module.css'
 
@@ -72,11 +73,25 @@ export function ProjectPage() {
         <section className={styles.postsSection}>
           <h2 className={styles.postsHeading}>Write-ups</h2>
           <ul className={styles.posts}>
-            {project.posts.map((slug) => (
-              <li key={slug}>
-                <Link to={`/blog/${slug}`}>{getPost(slug)?.title ?? slug}</Link>
-              </li>
-            ))}
+            {project.posts.map((slug) => {
+              const post = getPost(slug)
+              return (
+                <li key={slug} className={styles.postItem}>
+                  <Link to={`/blog/${slug}`}>{post?.title ?? slug}</Link>
+                  {post?.hn && (
+                    <a
+                      href={`https://news.ycombinator.com/item?id=${post.hn}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.hnIconLink}
+                      title="Hacker News discussion"
+                    >
+                      <HNMark className={styles.hnMark} />
+                    </a>
+                  )}
+                </li>
+              )
+            })}
           </ul>
         </section>
       )}

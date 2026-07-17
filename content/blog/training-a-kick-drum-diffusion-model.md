@@ -2,6 +2,7 @@
 title: How To Train a Generative Kick Drum Model on Your Old Linux Desktop With 6GB of VRAM
 date: 2026-07-16
 description: I trained a VAE, a diffusion U-Net, and a HiFi-GAN vocoder from scratch on 13,615 kick drums from my sample library, using a 7-year-old GPU with 6GB of VRAM. Now anyone can press a button and get a new kick.
+hn: 48935687
 ---
 
 I keep telling my friends who listen to techno that it's just a kick drum with reverb on it.

@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router'
 import Markdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import remarkGfm from 'remark-gfm'
+import { HNMark } from '../components/HNMark'
 import { formatDate, getPost } from '../utils/posts'
 import styles from './BlogPost.module.css'
 
@@ -25,6 +26,17 @@ export function BlogPost() {
       <header className={styles.header}>
         <p className={styles.date}>{formatDate(post.date)}</p>
         <h1 className={styles.title}>{post.title}</h1>
+        {post.hn && (
+          <a
+            className={styles.hnLink}
+            href={`https://news.ycombinator.com/item?id=${post.hn}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <HNMark className={styles.hnMark} />
+            Read the discussion which made it to the front page of Hacker News
+          </a>
+        )}
       </header>
       <div className={styles.content}>
         <Markdown

@@ -61,6 +61,21 @@
   text-decoration: underline;
 }
 
+.postItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.hnIconLink {
+  display: inline-flex;
+}
+
+.hnMark {
+  width: 13px;
+  height: 13px;
+}
+
 .footer {
   margin-top: var(--space-12);
   padding-top: var(--space-6);
