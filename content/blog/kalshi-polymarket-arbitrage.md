@@ -1,5 +1,5 @@
 ---
-title: Arbitrage exists between Kalshi and Polymarket but you can't exploit it
+title: Arbitrage Exists Between Kalshi and Polymarket but You Can't Exploit It
 date: 2026-08-06
 description: I recorded every orderbook change on matched MLB markets across Kalshi and Polymarket for 3 days. 8,870 price crossings, 480 bigger than fees, and none of them tradeable. Here's the data on why.
 ---
@@ -12,7 +12,7 @@ This article goes through what arbitrage is, how you can pull live order book da
 
 If you can buy apples on one side of Bleecker Street for \$7 then cross the street and sell the apples for \$10, that is arbitrage. You just made a profit of $3. Arbitrage is the name of this phenomenon where the same item has different prices in different markets. Profiting off of an arbitrage opportunity is called exploiting it.
 
-### What is a bid ask spread
+### What is a bid ask spread?
 
 On a prediction market, buyers post "bids" which are the prices they're willing to buy at and sellers post "asks" which are the prices they're willing to sell for. The "best bid" is the highest bid and the "best ask" is the lowest ask. The gap between them is the bid-ask spread.
 

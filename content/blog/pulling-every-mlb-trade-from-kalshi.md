@@ -1,5 +1,5 @@
 ---
-title: Pulling every MLB Game Winner trade from Kalshi 
+title: Pulling Every MLB Game Winner Trade From Kalshi
 date: 2026-07-06
 description: Prediction markets data pipeline best practices. How I pulled 25.7 million prediction market trades from Kalshi and matched them to MLB game results to check if the prices accurately represent game winning probabilities.
 ---
