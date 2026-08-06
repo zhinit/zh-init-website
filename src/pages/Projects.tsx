@@ -10,7 +10,11 @@ export const projects = [
     description:
       "Are prediction markets priced accurately? This project pulls 25 million trades from Kalshi and every MLB game from the MLB Stats API into a local DuckDB database, then tests whether game winner market prices reflect actual win probabilities.",
     github: "https://github.com/zhinit/prediction-market-analysis",
-    posts: ["pulling-every-mlb-trade-from-kalshi", "mlb_game_winners_analysis"],
+    posts: [
+      "pulling-every-mlb-trade-from-kalshi",
+      "mlb_game_winners_analysis",
+      "kalshi-polymarket-arbitrage",
+    ],
   },
   {
     title: "Kick With Reverb",
