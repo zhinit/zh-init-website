@@ -118,16 +118,6 @@ Doubleheaders are matched by scheduled start time, which Kalshi encodes in the t
 - 40 games
 - 3,529,564 cross-platform book states
 
-| | |
-|---|---|
-| **dates** | 2026-07-30 to 2026-08-02 |
-| **games** | 40 |
-| **cross-platform book states** | 3,529,564 |
-| **opportunities before fees** | 8,870 |
-| **opportunities after fees** | 480 |
-
-*Timestamps are in UTC and evening games run past midnight UTC, which is why the end date says August 2nd.*
-
 ### How many opportunities before fees?
 
 Every crossing is a "gross" arbitrage opportunity, meaning it ignores fees.
