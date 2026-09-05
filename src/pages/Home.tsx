@@ -5,7 +5,9 @@ export function Home() {
     <>
       <div className={styles.header}>
         <h1 className={styles.title}>Zachary Hill</h1>
-        <p className={styles.subtitle}>Software Engineer | Data Scientist</p>
+        <p className={styles.subtitle}>
+          Full-Stack TypeScript Developer | Building AI-Powered Applications
+        </p>
       </div>
 
       <section className={styles.about}>
@@ -24,9 +26,8 @@ export function Home() {
           </li>
         </ul>
         <p className={styles.bio}>
-          Currently a teaching assistant at UPenn for machine learning and
-          object-oriented programming, and a course development assistant for
-          web development.
+          Currently a course development assistant at UPenn for web development
+          and a teaching assistant for algorithms, and OOP.
         </p>
         <p className={styles.bio}>
           This site is a place to present my work and write about what I learn
